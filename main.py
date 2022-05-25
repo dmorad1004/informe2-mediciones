@@ -1,5 +1,3 @@
-from cmath import cos
-from tkinter import font
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -19,14 +17,15 @@ def plotWithLineaRegression(x, y, N):
         list(map(lambda x: (1 / math.cos(x * np.pi / 180) ** 2) * np.pi / 90, x))
     )
 
-    print(y_err)
-
     y = np.array(list(map(lambda y: y / 1000, y)))
     x = np.array(list(map(lambda x: math.tan(x * math.pi / 180), x)))
 
     plt.figure(figsize=(7, 7))
 
     b, a = np.polyfit(y, x, 1)
+    p, V = np.polyfit(y, x, 1, cov=True)
+
+    print(np.polyfit(y, x, 1, full=True))
 
     r2 = np.corrcoef(y, x)[0, 1] ** 2
 
@@ -44,7 +43,8 @@ def plotWithLineaRegression(x, y, N):
     plt.ylabel("tan(Θ)", fontsize=18, fontweight="bold")
     plt.title(f"N={N}", fontweight="bold")
 
-    print(b, a)
+    print("slope: {} +/- {}".format(p[0], np.sqrt(V[0][0])))
+    print("intercept: {} +/- {}".format(p[1], np.sqrt(V[1][1])))
 
     plt.errorbar(y, x, yerr=y_err, fmt=".")
 
@@ -54,5 +54,5 @@ def plotWithLineaRegression(x, y, N):
 
 
 plotWithLineaRegression(turns_15[1], turns_15[0], 15)
-# plotWithLineaRegression(turns_10[1], turns_10[0], 10)
-# plotWithLineaRegression(turns_5[1], turns_5[0], 5)
+plotWithLineaRegression(turns_10[1], turns_10[0], 10)
+plotWithLineaRegression(turns_5[1], turns_5[0], 5)
