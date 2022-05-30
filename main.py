@@ -1,3 +1,5 @@
+from distutils.log import error
+from black import err
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -10,6 +12,8 @@ turns_5 = [
     [0, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550],
     [0, 16, 22, 28, 32, 38, 40, 44, 46, 48, 50],
 ]
+
+Bt_real = 0.000026980
 
 
 def plotWithLineaRegression(x, y, N):
@@ -43,14 +47,32 @@ def plotWithLineaRegression(x, y, N):
     plt.ylabel("tan(Θ)", fontsize=18, fontweight="bold")
     plt.title(f"N={N}", fontweight="bold")
 
-    print("slope: {} +/- {}".format(p[0], np.sqrt(V[0][0])))
+    slope_err = np.sqrt(V[0][0])
+    print("slope: {} +/- {}".format(p[0], slope_err))
     print("intercept: {} +/- {}".format(p[1], np.sqrt(V[1][1])))
 
     plt.errorbar(y, x, yerr=y_err, fmt=".")
 
+    bt, _ = calculeMagneticField(b, N, slope_err)
+
+    err_absoluto = abs(float(bt) - Bt_real)
+    err_porcentual = (err_absoluto / Bt_real) * 100
+
+    print(f"err_absoluto:{err_absoluto}", f"err_porcentual:{err_porcentual} %")
+
     plt.legend()
     plt.text(0, 1.358, rf"$R^{2}={r2}$")
     plt.show()
+
+
+def calculeMagneticField(slope, N, err):
+    U0 = (4 * np.pi) * 10**-7
+    R = 0.06
+
+    bt = (U0 * N) / (2 * R * slope)
+    bt_err = bt * (err / slope)
+
+    return ("{:.20f}".format(bt), "{:.20f}".format(bt_err))
 
 
 plotWithLineaRegression(turns_15[1], turns_15[0], 15)
